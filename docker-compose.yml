@@ -12,25 +12,8 @@ services:
       - "5901:5901"  # VNC port
       - "9222:9222"  # Chrome remote debugging port
     environment:
-      - OPENAI_ENDPOINT=${OPENAI_ENDPOINT:-https://api.openai.com/v1}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - ANTHROPIC_ENDPOINT=${ANTHROPIC_ENDPOINT:-https://api.anthropic.com}
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
-      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT:-}
-      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
-      - DEEPSEEK_ENDPOINT=${DEEPSEEK_ENDPOINT:-https://api.deepseek.com}
-      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
-      - OLLAMA_ENDPOINT=${OLLAMA_ENDPOINT:-http://localhost:11434}
-      - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
-      - MISTRAL_ENDPOINT=${MISTRAL_ENDPOINT:-https://api.mistral.ai/v1}
-      - ALIBABA_ENDPOINT=${ALIBABA_ENDPOINT:-https://dashscope.aliyuncs.com/compatible-mode/v1}
-      - ALIBABA_API_KEY=${ALIBABA_API_KEY:-}
-      - MOONSHOT_ENDPOINT=${MOONSHOT_ENDPOINT:-https://api.moonshot.cn/v1}
-      - MOONSHOT_API_KEY=${MOONSHOT_API_KEY:-}
-      - IBM_API_KEY=${IBM_API_KEY:-}
-      - IBM_ENDPOINT=${IBM_ENDPOINT:-https://us-south.ml.cloud.ibm.com}
-      - IBM_PROJECT_ID=${IBM_PROJECT_ID:-}
+      - OLLAMA_ENDPOINT=${OLLAMA_ENDPOINT:-http://host.docker.internal:11434}
+      - OLLAMA_MODELS=${OLLAMA_MODELS:-llama2:7b,codellama:7b,mistral:7b,mixtral:8x7b}
       - BROWSER_USE_LOGGING_LEVEL=${BROWSER_USE_LOGGING_LEVEL:-info}
       - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-false}
       - CHROME_PATH=/usr/bin/google-chrome
@@ -45,8 +28,13 @@ services:
       - VNC_PASSWORD=${VNC_PASSWORD:-vncpassword}
       - CHROME_DEBUGGING_PORT=9222
       - CHROME_DEBUGGING_HOST=localhost
+      - WEBUI_SETTINGS_DIR=/app/webui_settings
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - type: bind
+        source: ${PWD}/webui_settings
+        target: /app/webui_settings
+        consistency: delegated
     restart: unless-stopped
     shm_size: '2gb'
     cap_add:
