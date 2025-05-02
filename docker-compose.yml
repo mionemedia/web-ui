@@ -1,5 +1,6 @@
 services:
   browser-use-webui:
+    image: mionemedia/browser-use-webui:latest
     platform: linux/amd64
     build:
       context: .
