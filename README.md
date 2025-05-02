@@ -1,6 +1,6 @@
-<img src="./assets/web-ui.png" alt="Browser Use Web UI" width="full"/>
+# Browser Use Web UI
 
-<br/>
+![Browser Use Web UI](./assets/web-ui.png)
 
 [![GitHub stars](https://img.shields.io/github/stars/browser-use/web-ui?style=social)](https://github.com/browser-use/web-ui/stargazers)
 [![Discord](https://img.shields.io/discord/1303749220842340412?color=7289DA&label=Discord&logo=discord&logoColor=white)](https://link.browser-use.com/discord)
@@ -19,7 +19,7 @@ We would like to officially thank [WarmShao](https://github.com/warmshao) for hi
 
 **Persistent Browser Sessions:** You can choose to keep the browser window open between AI tasks, allowing you to see the complete history and state of AI interactions.
 
-<video src="https://github.com/user-attachments/assets/56bc7080-f2e3-4367-af22-6bf2245ff6cb" controls="controls">Your browser does not support playing this video!</video>
+[Watch Demo Video](https://github.com/user-attachments/assets/56bc7080-f2e3-4367-af22-6bf2245ff6cb)
 
 ## Installation Guide
 
@@ -95,10 +95,75 @@ cp .env.example .env
   - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (For Windows/macOS)
   - [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) (For Linux)
 
-#### Installation Steps
+#### Option 1: Using Docker Compose with Local Build
 1. Clone the repository:
 ```bash
 git clone https://github.com/browser-use/web-ui.git
+cd web-ui
+```
+
+2. Create a `.env` file:
+```bash
+cp .env.example .env
+```
+
+3. Build and run with Docker Compose:
+```bash
+docker-compose up
+```
+
+#### Option 2: Using Pre-built Docker Image (Recommended)
+1. Create a new directory and navigate into it:
+```bash
+mkdir browser-use-webui
+cd browser-use-webui
+```
+
+2. Create a `.env` file with your configuration:
+```env
+OLLAMA_ENDPOINT=http://host.docker.internal:11434
+OLLAMA_MODELS=llama2:7b,codellama:7b,mistral:7b,mixtral:8x7b
+BROWSER_USE_LOGGING_LEVEL=info
+ANONYMIZED_TELEMETRY=false
+```
+
+3. Create a `docker-compose.yml` file:
+```yaml
+services:
+  browser-use-webui:
+    image: mionemedia/browser-use-webui:latest
+    ports:
+      - "7788:7788"  # Gradio default port
+      - "6080:6080"  # noVNC web interface
+      - "5901:5901"  # VNC port
+      - "9222:9222"  # Chrome remote debugging port
+    environment:
+      - OLLAMA_ENDPOINT=${OLLAMA_ENDPOINT:-http://host.docker.internal:11434}
+      - OLLAMA_MODELS=${OLLAMA_MODELS:-llama2:7b,codellama:7b,mistral:7b,mixtral:8x7b}
+      - BROWSER_USE_LOGGING_LEVEL=${BROWSER_USE_LOGGING_LEVEL:-info}
+      - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-false}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${PWD}/webui_settings:/app/webui_settings
+    restart: unless-stopped
+    shm_size: '2gb'
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp=unconfined
+```
+
+4. Create the settings directory:
+```bash
+mkdir webui_settings
+```
+
+5. Start the container:
+```bash
+docker-compose up
+```
+
+#### Option 3: Manual Installation
 cd web-ui
 ```
 
@@ -130,9 +195,33 @@ CHROME_PERSISTENT_SESSION=true docker compose up --build
   - Default VNC password: "youvncpassword"
   - Can be changed by setting `VNC_PASSWORD` in your `.env` file
 
+## Troubleshooting
+
+### Common Issues
+
+1. **Cannot connect to Ollama**
+   - Make sure Ollama is running locally
+   - Check if the OLLAMA_ENDPOINT is correctly set to `http://host.docker.internal:11434`
+   - For Linux hosts, you might need to use the host's IP address instead of `host.docker.internal`
+
+2. **UI Settings not saving**
+   - Ensure the `webui_settings` directory exists and has correct permissions
+   - Check if the volume mount in `docker-compose.yml` is correct
+   - Try using absolute paths for the volume mount
+
+3. **Browser window not visible in VNC**
+   - Wait a few seconds after container startup for all services to initialize
+   - Check if you can access the noVNC interface at `http://localhost:6080/vnc.html`
+   - Make sure no other service is using port 6080
+
+4. **Container fails to start**
+   - Check if all required ports (7788, 6080, 5901, 9222) are available
+   - Ensure you have enough system resources (at least 2GB of memory)
+   - Try increasing the `shm_size` in docker-compose.yml if browser crashes
+
 ## Usage
 
-### Local Setup
+## Local Setup
 1.  **Run the WebUI:**
     After completing the installation steps above, start the application:
     ```bash
