@@ -45,7 +45,7 @@ from langchain_mistralai import ChatMistralAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_ollama import ChatOllama
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
-from langchain_ibm import ChatWatsonx
+# from langchain_ibm import ChatWatsonx  # Commented out: package not available
 from langchain_aws import ChatBedrock
 from pydantic import SecretStr
 
@@ -287,13 +287,10 @@ def get_llm_model(provider: str, **kwargs):
         else:
             base_url = kwargs.get("base_url")
 
-        return ChatWatsonx(
-            model_id=kwargs.get("model_name", "ibm/granite-vision-3.1-2b-preview"),
-            url=base_url,
-            project_id=os.getenv("IBM_PROJECT_ID"),
-            apikey=os.getenv("IBM_API_KEY"),
-            params=parameters
-        )
+        # Commented out: package not available
+        # Return None or a fallback model since ChatWatsonx is not available
+        logger.warning("IBM Watson integration is not available. Please install langchain-ibm package if needed.")
+        return None
     elif provider == "moonshot":
         return ChatOpenAI(
             model=kwargs.get("model_name", "moonshot-v1-32k-vision-preview"),
